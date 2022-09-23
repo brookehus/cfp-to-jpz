@@ -7,7 +7,7 @@ I put this together so I could fix a messed-up .jpz file for a rebus puzzle and 
 
 Usage
 -----
-Clone the repository:
+In a suitable directory, from the terminal, clone the repository:
 ```
 git clone git@github.com:brookehus/cfp-to-jpz.git
 ```
