@@ -299,6 +299,7 @@ class Jpz():
                 self.lb, self.lb)
         )
 
+        # why does it need these hyperlinks? i do not know
         metadata_strings.append(
             '<crossword-compiler xmlns="http://crossword.info/xml/crossword-compiler">{}{}<rectangular-puzzle xmlns="http://crossword.info/xml/rectangular-puzzle" alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ">{}'.format(
                 self.lb, self.tab, self.lb)
@@ -368,6 +369,7 @@ class Jpz():
                                 j+1, i+1, char, k, self.lb)
                         )
 
+        # italian style! that option can def just be deleted altogether. so can thick-border.
         grid_strings.append(
             '{}<grid-look cell-size-in-pixels="26" clue-square-divider-width="0.7" italian-style="false" numbering-scheme="normal" thick-border="true" />{}{}</grid>{}{}'.format(
                 self.lb, self.lb, self.lb, self.lb, self.lb)
