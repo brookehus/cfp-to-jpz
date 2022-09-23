@@ -1,8 +1,9 @@
 # cfp-to-jpz
+#### With rebus support 😎
 
-Haven't you always wanted to... you know... jpz your cfps?
+Haven't you always wanted to... you know... jpz your cfps? (Especially ones with rebuses?)
 
-I put this together so I could fix a messed-up .jpz file and I absolutely cannot promise it works in general.
+I put this together so I could fix a messed-up .jpz file for a rebus puzzle and I absolutely cannot promise it works in general.
 
 Usage
 -----
