@@ -367,34 +367,35 @@ class AcrossliteCrossword(Crossword):
                     else:
                         break
 
+
         if n_rows is None or n_cols is None:
             raise RuntimeError(
                 'Could not find grid size.'
-                )
+            )
 
         if grid_start is None:
             raise RuntimeError(
                 'Could not find start of grid.'
-                )
+            )
 
         if across_start is None:
             raise RuntimeError(
                 'Could not find across clues.'
-                )
+            )
         else:
             if n_acrosses == 0:
                 raise RuntimeError(
-                'Could not find across clues.'
+                    'Could not find across clues.'
                 )
 
         if down_start is None:
             raise RuntimeError(
                 'Could not find down clues.'
-                )
+            )
         else:
             if n_downs == 0:
                 raise RuntimeError(
-                'Could not find across clues.'
+                    'Could not find across clues.'
                 )
 
         self.n_rows = n_rows
@@ -422,7 +423,7 @@ class AcrossliteCrossword(Crossword):
         assert len(grid[0]) == self.n_cols
 
         self._grid_letters = np.array([list(grid[i])
-                                    for i in range(len(grid))])
+                                       for i in range(len(grid))])
 
         return grid
 
