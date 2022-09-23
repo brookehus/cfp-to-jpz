@@ -306,7 +306,10 @@ class AcrossliteCrossword(Crossword):
                 try:
                     row = row.decode()
                 except:
-                    row = row[6:].decode()
+                    try:
+                        row = row[6:].decode() # for copyright signs
+                    except:
+                        print('\n\n\n*ERROR:* Unicode character found here: {}\n\n\n'.format(row))
                 raw_data.append(row.lstrip(' ').rstrip('\n'))
 
         return raw_data
