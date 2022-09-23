@@ -422,6 +422,9 @@ class Jpz():
                 self.lb, self.lb, self.lb, self.lb)
         )
 
+        # I've copied over the word id scheme from CMS, but it doesn't have to
+        # be this way. For whatever reason, across clues get 0000 appended and
+        # down clues get 0001 appended.
         for clue_num, clue in self._xw.clue_dict['across'].items():
             clue_strings.append(
                 '<clue number="{}" word="{}0000">{}'.format(
