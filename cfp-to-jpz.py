@@ -10,8 +10,7 @@ import numpy as np
 
 
 class Crossword():
-    """docs
-    """
+    """Loads in a .cfp file and organizes its info."""
 
     def __init__(self, cfp_filename):
         self.cfp_filename = cfp_filename
@@ -274,8 +273,7 @@ class Crossword():
 
 
 class Jpz():
-    """docs
-    """
+    """Formats the jpz and has a method to write it to a file."""
 
     def __init__(self, crossword, pretty=True):
         self._xw = crossword
@@ -455,6 +453,8 @@ class Jpz():
         return clue_strings
 
     def write_jpz(self, filename):
+        """Write the .jpz to a file"""
+
         if filename[-4:] == '.cfp':
             jpz_filename = filename[:-4] + '.jpz'
         elif filename[-4:] != '.jpz':
