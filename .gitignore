@@ -6,6 +6,12 @@
 dev/*
 debug/*
 
+# Puzzles
+*.cfp
+*.jpz
+*.txt
+*.puz
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

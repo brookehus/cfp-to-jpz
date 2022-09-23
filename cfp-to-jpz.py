@@ -309,7 +309,14 @@ class AcrossliteCrossword(Crossword):
                     try:
                         row = row[6:].decode() # for copyright signs
                     except:
-                        print('\n\n\n*ERROR:* Unicode character found here: {}\n\n\n'.format(row))
+                        print('\n\n   * * * * * * * * * * * * * * * * * * * * * * * * * * * ')
+                        print('   *                                                   *')
+                        print('   * ERROR: Unicode character found here:              *')
+                        print('   * {}'.format(row))
+                        print('   *                                                   *')
+                        print('   * Edit the clue, or maybe try a .cfp file instead?  *')
+                        print('   *                                                   *')
+                        print('   * * * * * * * * * * * * * * * * * * * * * * * * * * * \n\n')
                 raw_data.append(row.lstrip(' ').rstrip('\n'))
 
         return raw_data
