@@ -183,6 +183,9 @@ class Crossword():
         self._across_starts = across_starts
         self._across_words = across_words
 
+        self._cat_across_starts = sorted(list(np.concatenate(across_starts)))
+        self._cat_down_starts = sorted(list(np.concatenate(down_starts)))
+
         self._down_nums = down_nums
         self._down_starts = down_starts
         self._down_words = down_words
@@ -270,6 +273,180 @@ class Crossword():
                     location_dict[char] = [i, j]
 
         return location_dict
+
+
+class AcrossliteCrossword(Crossword):
+    """Formats the jpz from an acrosslite text file and has a method to write
+    it to a file. Janky/hacky! Use with caution."""
+
+    def __init__(self, cfp_filename):
+        self.cfp_filename = cfp_filename
+
+        self._raw_data = self.extract_raw_data()
+        self.metadata_dict = self.get_metadata()
+        self.grid = self.get_grid()
+        self._rebus_dict = self.get_rebus_dict()
+        self._numbering = self.get_numbering()
+
+        # the answer dict will have rebus codes, if applicable
+        self._answer_dict = self.get_answer_dict()
+        self.clue_dict = self.get_clue_dict()
+        self.ans_clue_dict = self.get_answer_clue_dict()
+        self._location_dict = self.get_location_dict()
+
+    def extract_raw_data(self):
+        with open(cfp_filename, 'rb') as cfp_file:
+            raw_data = []
+            for i, row in enumerate(cfp_file):
+
+                # This is a very specific situation where the copyright
+                # symbol is messing things up, and it's a hacky fix.
+                # Because of that I've also decided to keep a clean
+                # copy of the acrosslite file as an object attribute
+                try:
+                    row = row.decode()
+                except:
+                    row = row[6:].decode()
+                raw_data.append(row.lstrip(' ').rstrip('\n'))
+
+        return raw_data
+
+    def get_metadata(self):
+        """This is extremely hacky"""
+        metadata_dict = {
+            'title': '',
+            'author': '',
+            'copyright': '',
+            'notes': ''
+        }
+
+        rebus = False
+
+        n_rows = None
+        n_cols = None
+        grid_start = None
+        across_start = None
+        down_start = None
+
+        for i, row in enumerate(self._raw_data):
+            if row == '<TITLE>':
+                metadata_dict['title'] = self._raw_data[i+1]
+            elif row == '<AUTHOR>':
+                metadata_dict['author'] = self._raw_data[i+1]
+            elif row == '<COPYRIGHT>':
+                metadata_dict['copyright'] = self._raw_data[i+1]
+            elif row == '<NOTEPAD>':
+                metadata_dict['notes'] = self._raw_data[i+1]
+            elif row == '<SIZE>':
+                n_rows, n_cols = [int(k) for k in self._raw_data[i+1].split('x')]
+            elif row == '<GRID>':
+                grid_start = i+1
+            elif row == '<REBUS>':
+                rebus = True
+                rebus_start = i+1
+                n_unique_rebuses = 0
+                for j, rebus_row in enumerate(self._raw_data[i+1:]):
+                    if rebus_row[0] != '<':
+                        n_unique_rebuses += 1
+                    else:
+                        break
+            elif row == '<ACROSS>':
+                across_start = i+1
+                n_acrosses = 0
+                for j, across_row in enumerate(self._raw_data[i+1:]):
+                    if across_row[0] != '<':
+                        n_acrosses += 1
+                    else:
+                        break
+            elif row == '<DOWN>':
+                down_start = i+1
+                n_downs = 0
+                for j, down_row in enumerate(self._raw_data[i+1:]):
+                    if down_row[0] != '<' and len(down_row) > 0:
+                        n_downs += 1
+                    else:
+                        break
+
+        if n_rows is None or n_cols is None:
+            raise RuntimeError(
+                'Could not find grid size.'
+                )
+
+        if grid_start is None:
+            raise RuntimeError(
+                'Could not find start of grid.'
+                )
+
+        if across_start is None:
+            raise RuntimeError(
+                'Could not find across clues.'
+                )
+        else:
+            if n_acrosses == 0:
+                raise RuntimeError(
+                'Could not find across clues.'
+                )
+
+        if down_start is None:
+            raise RuntimeError(
+                'Could not find down clues.'
+                )
+        else:
+            if n_downs == 0:
+                raise RuntimeError(
+                'Could not find across clues.'
+                )
+
+        self.n_rows = n_rows
+        self.n_cols = n_cols
+        self._grid_start = grid_start
+
+        self.rebus = rebus
+        self._rebus_start = rebus_start
+        self._n_unique_rebuses = n_unique_rebuses
+
+        self._across_start = across_start
+        self._n_acrosses = n_acrosses
+        self._down_start = down_start
+        self._n_downs = n_downs
+
+        return metadata_dict
+
+    def get_grid(self):
+        grid = []
+
+        for i, row in enumerate(self._raw_data[self._grid_start:self._grid_start+self.n_rows]):
+            grid.append(row)
+
+        assert len(grid) == self.n_rows
+        assert len(grid[0]) == self.n_cols
+
+        self._grid_letters = np.array([list(grid[i])
+                                    for i in range(len(grid))])
+
+        return grid
+
+    def get_rebus_dict(self):
+        rebus_dict = {}
+
+        for i, row in enumerate(self._raw_data[self._rebus_start:self._rebus_start+self._n_unique_rebuses]):
+            rebus_raw = row.split(':')
+            rebus_dict[rebus_raw[0]] = rebus_raw[1]
+
+        return rebus_dict
+
+    def get_clue_dict(self):
+        clue_dict = {}
+        clue_dict['across'] = {}
+        clue_dict['down'] = {}
+
+        for i, row in enumerate(self._raw_data[self._across_start:self._across_start+self._n_acrosses]):
+            clue_dict['across'][self._cat_across_starts[i]] = row
+
+        for i, row in enumerate(self._raw_data[self._down_start:self._down_start+self._n_downs]):
+            clue_dict['down'][self._cat_down_starts[i]] = row
+
+        return clue_dict
 
 
 class Jpz():
@@ -380,11 +557,8 @@ class Jpz():
     def encode_locations(self):
         location_strings = []
 
-        cat_across_starts = sorted(list(np.concatenate(self._xw._across_starts)))
-        cat_down_starts = sorted(list(np.concatenate(self._xw._down_starts)))
-
         for a in range(1, np.max(self._xw._numbering)+1):
-            if a in cat_across_starts:
+            if a in self._xw._cat_across_starts:
                 location_strings.append(
                     '<word id="{}0000">{}'.format(a, self.lb))
                 for i in range(len(self._xw._answer_dict['across'][a])):
@@ -398,7 +572,7 @@ class Jpz():
                     )
                 location_strings.append('</word>{}'.format(self.lb))
 
-            if a in cat_down_starts:
+            if a in self._xw._cat_down_starts:
                 location_strings.append(
                     '<word id="{}0001">{}'.format(a, self.lb))
                 for i in range(len(self._xw._answer_dict['down'][a])):
@@ -460,7 +634,9 @@ class Jpz():
     def write_jpz(self, filename):
         """Write the .jpz to a file"""
 
-        if filename[-4:] == '.cfp':
+        if filename[-4:].lower() == '.cfp':
+            jpz_filename = filename[:-4] + '.jpz'
+        elif filename[-4:].lower() == '.txt':
             jpz_filename = filename[:-4] + '.jpz'
         elif filename[-4:] != '.jpz':
             jpz_filename = filename + '.jpz'
@@ -510,6 +686,13 @@ if __name__ == '__main__':
     else:
         cfp_filename = sys.argv[1]
 
-        crossword = Crossword(cfp_filename)
+        if cfp_filename[-4:].lower() == '.cfp':
+            crossword = Crossword(cfp_filename)
+        elif cfp_filename[-4:].lower() == '.txt':
+            crossword = AcrossliteCrossword(cfp_filename)
+        else:
+            print('This is only intended for .cfp files.')
+            sys.exit(0)
+
         jpz = Jpz(crossword, pretty=True)
         jpz.write_jpz(cfp_filename)
