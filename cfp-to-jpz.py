@@ -367,7 +367,6 @@ class AcrossliteCrossword(Crossword):
                     else:
                         break
 
-
         if n_rows is None or n_cols is None:
             raise RuntimeError(
                 'Could not find grid size.'
