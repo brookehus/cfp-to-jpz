@@ -440,8 +440,9 @@ class AcrossliteCrossword(Crossword):
         rebus_dict = {}
 
         for i, row in enumerate(self._raw_data[self._rebus_start:self._rebus_start+self._n_unique_rebuses]):
-            rebus_raw = row.split(':')
-            rebus_dict[rebus_raw[0]] = rebus_raw[1]
+            if ':' in row:
+                rebus_raw = row.split(':')
+                rebus_dict[rebus_raw[0]] = rebus_raw[1]
 
         return rebus_dict
 
