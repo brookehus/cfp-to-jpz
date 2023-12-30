@@ -8,6 +8,8 @@ debug/*
 
 # Puzzles
 *.cfp
+*.cfp.bak
+*.bak
 *.jpz
 *.txt
 *.puz

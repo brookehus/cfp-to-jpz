@@ -18,6 +18,7 @@ class Crossword():
         self.metadata_dict = self.get_metadata()
         self.grid = self.get_grid()
         self._rebus_dict = self.get_rebus_dict()
+        self._circles = self.get_circles()
         self._numbering = self.get_numbering()
 
         # the answer dict will have rebus codes, if applicable
@@ -34,22 +35,22 @@ class Crossword():
             'notes': ''
         }
 
-        with open(self.cfp_filename, 'r') as cfp_file:
+        with open(cfp_filename, 'r') as cfp_file:
             for i, row in enumerate(cfp_file):
-                if row[1:6] == 'TITLE':
-                    title = row.lstrip('<TITLE>').rstrip('</TITLE>\n')
+                if '<TITLE>' in row:
+                    title = row.lstrip(' ').lstrip('<TITLE>').rstrip('</TITLE>\n')
                     metadata_dict['title'] = title
 
-                elif row[1:7] == 'AUTHOR':
-                    author = row.lstrip('<AUTHOR>').rstrip('</AUTHOR>\n')
+                elif '<AUTHOR>' in row:
+                    author = row.lstrip(' ').lstrip('<AUTHOR>').rstrip('</AUTHOR>\n')
                     metadata_dict['author'] = author
 
-                elif row[1:10] == 'COPYRIGHT':
-                    copyright = row.lstrip(
+                elif '<COPYRIGHT>' in row:
+                    copyright = row.lstrip(' ').lstrip(
                         '<COPYRIGHT>').rstrip('</COPYRIGHT>\n')
                     metadata_dict['copyright'] = copyright
 
-                elif row[1:6] == 'NOTES':
+                elif '<NOTES>' in row:
                     notes = row.lstrip('<NOTES>').rstrip('</NOTES>\n')
                     metadata_dict['notes'] = notes
 
@@ -62,7 +63,7 @@ class Crossword():
             # assumes grid image is the only part of a cfp
             # file whose line doesn't start with '<'
             for i, row in enumerate(cfp_file):
-                if row[0] != '<':
+                if row.lstrip(' ')[0] != '<':
                     grid.append(row.rstrip('\n'))
 
         self.n_rows = len(grid)
@@ -81,8 +82,8 @@ class Crossword():
             # assumes cfp convention e.g.:
             # <REBUS display="R" input="@" letters="rose"/>
             for i, row in enumerate(cfp_file):
-                if row[1:14] == 'REBUS display':
-                    rebus_raw = row.rstrip('/>\n')
+                if '<REBUS display=' in row:
+                    rebus_raw = row.lstrip(' ').rstrip('/>\n')
                     rebus_info = '='.join(
                         rebus_raw.split(' ')).split('=')
                     rebus_dict[rebus_info[4].strip(
@@ -95,7 +96,21 @@ class Crossword():
 
         return rebus_dict
 
+    def get_circles(self):
+        circles = []
+
+        with open(self.cfp_filename, 'r') as cfp_file:
+
+            for i, row in enumerate(cfp_file):
+                if '<CIRCLES>' in row:
+                    circles_raw = row.lstrip(' ').lstrip(
+                        '<CIRCLES>').rstrip('</CIRCLES>\n')
+                    circles = [int(c) for c in circles_raw.split(',')]
+
+        return circles
+
     def get_numbering(self):
+
         numbering = np.zeros((self.n_rows, self.n_cols), dtype=int)
         for i, row in enumerate(self._grid_letters):
             for j, letter in enumerate(row):
@@ -146,7 +161,7 @@ class Crossword():
         across_starts = []
         for row in numbering:
             this_row = []
-            for i, num in enumerate(row[:self.n_rows]):
+            for i, num in enumerate(row[:self.n_cols]):
                 if i == 0 and num > -1:
                     this_row.append(num)
                 elif row[i-1] == -1:
@@ -157,7 +172,7 @@ class Crossword():
         down_starts = []
         for col in numbering.T:
             this_col = []
-            for i, num in enumerate(col[:self.n_cols]):
+            for i, num in enumerate(col[:self.n_rows]):
                 if i == 0 and num > -1:
                     this_col.append(num)
                 elif col[i-1] == -1:
@@ -166,7 +181,7 @@ class Crossword():
             down_starts.append(this_col)
 
         grid_flip = [''.join([row[i] for row in self.grid])
-                     for i in range(len(self.grid))]
+                     for i in range(len(self.grid[0]))]
 
         across_words = [row.split('.') for row in self.grid]
         across_words = [[b for b in a if len(b) > 0] for a in across_words]
@@ -193,6 +208,7 @@ class Crossword():
         return numbering
 
     def get_answer_dict(self):
+
         answer_dict = {
             'across': {},
             'down': {}
@@ -212,14 +228,15 @@ class Crossword():
         return answer_dict
 
     def get_clue_dict(self):
+
         with open(self.cfp_filename, 'r') as cfp_file:
             clues_raw = []
 
             # assumes clues are of the form
             # <WORD dir="ACROSS" id="0" isTheme="false" num="1">[Clue]</WORD>
             for i, row in enumerate(cfp_file):
-                if row[1:9] == 'WORD dir':
-                    clues_raw.append(row.rstrip('</WORD>\n'))
+                if '<WORD dir' in row:
+                    clues_raw.append(row.lstrip('').rstrip('</WORD>\n'))
 
             clue_dict = {}
             clue_dict['across'] = {}
@@ -260,7 +277,7 @@ class Crossword():
                     ans_clue_dict[ans] = clue
                 else:
                     raise ValueError(
-                        '{} already in answer-clue dictionary'.format(ans)
+                        '{} already in answer-clue dictionary\n\nCrosswords with repeat answers are not currently supported.'.format(ans)
                     )
 
         return ans_clue_dict
