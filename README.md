@@ -18,4 +18,4 @@ cd cfp-to-jpz
 python cfp-to-jpz [name of your cfp file]
 ```
 
-Do you use this software? Have anything to say about it? Log an issue or DM me on [Twitter](https://twitter.com/xandraladee).
+Do you use this software? Have anything to say about it? Log an issue or dm me on Discord at xoxandra.
