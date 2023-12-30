@@ -1,6 +1,6 @@
 # Brooke Husic
 # Created 9/23/2022
-# Last updated 9/23/2022
+# Last updated 12/29/2023
 # Instructions:
 # >>> python cfp-to-jpz my_cfp.cfp
 
@@ -38,11 +38,13 @@ class Crossword():
         with open(cfp_filename, 'r') as cfp_file:
             for i, row in enumerate(cfp_file):
                 if '<TITLE>' in row:
-                    title = row.lstrip(' ').lstrip('<TITLE>').rstrip('</TITLE>\n')
+                    title = row.lstrip(' ').lstrip(
+                        '<TITLE>').rstrip('</TITLE>\n')
                     metadata_dict['title'] = title
 
                 elif '<AUTHOR>' in row:
-                    author = row.lstrip(' ').lstrip('<AUTHOR>').rstrip('</AUTHOR>\n')
+                    author = row.lstrip(' ').lstrip(
+                        '<AUTHOR>').rstrip('</AUTHOR>\n')
                     metadata_dict['author'] = author
 
                 elif '<COPYRIGHT>' in row:
@@ -277,7 +279,8 @@ class Crossword():
                     ans_clue_dict[ans] = clue
                 else:
                     raise ValueError(
-                        '{} already in answer-clue dictionary\n\nCrosswords with repeat answers are not currently supported.'.format(ans)
+                        '{} already in answer-clue dictionary\n\nCrosswords with repeat answers are not currently supported.'.format(
+                            ans)
                     )
 
         return ans_clue_dict
@@ -324,16 +327,23 @@ class AcrossliteCrossword(Crossword):
                     row = row.decode()
                 except:
                     try:
-                        row = row[6:].decode() # for copyright signs
+                        row = row[6:].decode()  # for copyright signs
                     except:
-                        print('\n\n   * * * * * * * * * * * * * * * * * * * * * * * * * * * ')
-                        print('   *                                                   *')
-                        print('   * ERROR: Unicode character found here:              *')
+                        print(
+                            '\n\n   * * * * * * * * * * * * * * * * * * * * * * * * * * * ')
+                        print(
+                            '   *                                                   *')
+                        print(
+                            '   * ERROR: Unicode character found here:              *')
                         print('   * {}'.format(row))
-                        print('   *                                                   *')
-                        print('   * Edit the clue, or maybe try a .cfp file instead?  *')
-                        print('   *                                                   *')
-                        print('   * * * * * * * * * * * * * * * * * * * * * * * * * * * \n\n')
+                        print(
+                            '   *                                                   *')
+                        print(
+                            '   * Edit the clue, or maybe try a .cfp file instead?  *')
+                        print(
+                            '   *                                                   *')
+                        print(
+                            '   * * * * * * * * * * * * * * * * * * * * * * * * * * * \n\n')
                 raw_data.append(row.lstrip(' ').rstrip('\n'))
 
         return raw_data
@@ -365,7 +375,8 @@ class AcrossliteCrossword(Crossword):
             elif row == '<NOTEPAD>':
                 metadata_dict['notes'] = self._raw_data[i+1]
             elif row == '<SIZE>':
-                n_rows, n_cols = [int(k) for k in self._raw_data[i+1].split('x')]
+                n_rows, n_cols = [int(k)
+                                  for k in self._raw_data[i+1].split('x')]
             elif row == '<GRID>':
                 grid_start = i+1
             elif row == '<REBUS>':
@@ -566,7 +577,7 @@ class Jpz():
                         char = self._xw.grid[i][j]
 
                     if k == 0:
-                        
+
                         if ind_d1 in crossword._circles:
                             grid_strings.append(
                                 '<cell x="{}" y="{}" solution="{}" background-shape="circle" />{}'.format(
