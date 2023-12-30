@@ -485,9 +485,11 @@ class AcrossliteCrossword(Crossword):
         list_of_letters = list(np.concatenate(self._grid_letters))
 
         if self._circle_rebuses:
-            circles = [c_ind for c_ind, c in enumerate(list_of_letters) if c.islower() or c.isdigit()]
+            circles = [c_ind for c_ind, c in enumerate(
+                list_of_letters) if c.islower() or c.isdigit()]
         else:
-            circles = [c_ind for c_ind, c in enumerate(list_of_letters) if c.islower()]
+            circles = [c_ind for c_ind, c in enumerate(
+                list_of_letters) if c.islower()]
 
         # now convert everything to uppercase since we got the info we needed
         for row_ind, row in enumerate(self.grid):
@@ -496,7 +498,8 @@ class AcrossliteCrossword(Crossword):
         for row_ind, row in enumerate(self._grid_letters):
             for col_ind, let in enumerate(row):
                 if self._grid_letters[row_ind][col_ind].islower():
-                    self._grid_letters[row_ind][col_ind] = self._grid_letters[row_ind][col_ind].upper()
+                    self._grid_letters[row_ind][col_ind] = self._grid_letters[row_ind][col_ind].upper(
+                    )
 
         return circles
 
