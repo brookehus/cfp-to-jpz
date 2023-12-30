@@ -552,6 +552,8 @@ class Jpz():
 
         for i, row in enumerate(self._xw._numbering):
             for j, k in enumerate(row):
+                ind_d1 = j + crossword.n_cols*i
+
                 if k == -1:
                     grid_strings.append(
                         '<cell x="{}" y="{}" type="block" />{}'.format(
@@ -564,15 +566,28 @@ class Jpz():
                         char = self._xw.grid[i][j]
 
                     if k == 0:
-                        grid_strings.append(
-                            '<cell x="{}" y="{}" solution="{}" />{}'.format(
-                                j+1, i+1, char, self.lb)
-                        )
+                        
+                        if ind_d1 in crossword._circles:
+                            grid_strings.append(
+                                '<cell x="{}" y="{}" solution="{}" background-shape="circle" />{}'.format(
+                                    j+1, i+1, char, self.lb)
+                            )
+                        else:
+                            grid_strings.append(
+                                '<cell x="{}" y="{}" solution="{}" />{}'.format(
+                                    j+1, i+1, char, self.lb)
+                            )
                     else:
-                        grid_strings.append(
-                            '<cell x="{}" y="{}" solution="{}" number="{}" />{}'.format(
-                                j+1, i+1, char, k, self.lb)
-                        )
+                        if ind_d1 in crossword._circles:
+                            grid_strings.append(
+                                '<cell x="{}" y="{}" solution="{}" number="{}" background-shape="circle" />{}'.format(
+                                    j+1, i+1, char, k, self.lb)
+                            )
+                        else:
+                            grid_strings.append(
+                                '<cell x="{}" y="{}" solution="{}" number="{}" />{}'.format(
+                                    j+1, i+1, char, k, self.lb)
+                            )
 
         # italian style! that option can def just be deleted altogether. so can thick-border.
         grid_strings.append(
