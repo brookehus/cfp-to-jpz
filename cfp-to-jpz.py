@@ -306,6 +306,7 @@ class AcrossliteCrossword(Crossword):
         self.metadata_dict = self.get_metadata()
         self.grid = self.get_grid()
         self._rebus_dict = self.get_rebus_dict()
+        self._circles = self.get_circles()
         self._numbering = self.get_numbering()
 
         # the answer dict will have rebus codes, if applicable
@@ -358,6 +359,7 @@ class AcrossliteCrossword(Crossword):
         }
 
         rebus = False
+        circle_rebuses = False
 
         n_rows = None
         n_cols = None
@@ -375,7 +377,7 @@ class AcrossliteCrossword(Crossword):
             elif row == '<NOTEPAD>':
                 metadata_dict['notes'] = self._raw_data[i+1]
             elif row == '<SIZE>':
-                n_rows, n_cols = [int(k)
+                n_cols, n_rows = [int(k)
                                   for k in self._raw_data[i+1].split('x')]
             elif row == '<GRID>':
                 grid_start = i+1
@@ -388,6 +390,8 @@ class AcrossliteCrossword(Crossword):
                         n_unique_rebuses += 1
                     else:
                         break
+            elif row == 'MARK;':
+                circle_rebuses = True
             elif row == '<ACROSS>':
                 across_start = i+1
                 n_acrosses = 0
@@ -443,6 +447,9 @@ class AcrossliteCrossword(Crossword):
         self._rebus_start = rebus_start
         self._n_unique_rebuses = n_unique_rebuses
 
+        # AcrossLite version can either circle all or no rebuses, but not some
+        self._circle_rebuses = circle_rebuses
+
         self._across_start = across_start
         self._n_acrosses = n_acrosses
         self._down_start = down_start
@@ -473,6 +480,25 @@ class AcrossliteCrossword(Crossword):
                 rebus_dict[rebus_raw[0]] = rebus_raw[1]
 
         return rebus_dict
+
+    def get_circles(self):
+        list_of_letters = list(np.concatenate(self._grid_letters))
+
+        if self._circle_rebuses:
+            circles = [c_ind for c_ind, c in enumerate(list_of_letters) if c.islower() or c.isdigit()]
+        else:
+            circles = [c_ind for c_ind, c in enumerate(list_of_letters) if c.islower()]
+
+        # now convert everything to uppercase since we got the info we needed
+        for row_ind, row in enumerate(self.grid):
+            self.grid[row_ind] = row.upper()
+
+        for row_ind, row in enumerate(self._grid_letters):
+            for col_ind, let in enumerate(row):
+                if self._grid_letters[row_ind][col_ind].islower():
+                    self._grid_letters[row_ind][col_ind] = self._grid_letters[row_ind][col_ind].upper()
+
+        return circles
 
     def get_clue_dict(self):
         clue_dict = {}
